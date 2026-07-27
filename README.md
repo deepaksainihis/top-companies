@@ -1,9 +1,7 @@
 # Top Companies — Platform
 
 Production-ready admin panel + REST API + public directory site for a "Top
-Companies" style listing (companies, categories, masters, settings).
-Inspired by [topcompanies.reviews](https://topcompanies.reviews) (no
-branding/assets copied).
+Companies" style listing (companies, categories, masters, settings)..
 
 ## Stack
 
@@ -256,5 +254,6 @@ apps/web/src/
   components/   header, footer, theme-toggle, category-card, company-rank-card, faq-accordion
   lib/          api.ts (typed fetch wrapper with ISR), types.ts, cn() util
 ```
-#   t o p - c o m p a n i e s  
+#   t o p - c o m p a n i e s 
+ 
  
