@@ -1,0 +1,14 @@
+node_modules/
+.env
+.env.local
+.env.*.local
+apps/api/uploads/*
+!apps/api/uploads/.gitkeep
+apps/api/dist/
+apps/admin/.next/
+apps/admin/out/
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+coverage/

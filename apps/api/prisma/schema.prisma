@@ -1,0 +1,325 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+enum SeoPage {
+  HOME
+  ABOUT
+}
+
+// ---------------------------------------------------------------------------
+// Auth
+// ---------------------------------------------------------------------------
+
+model Admin {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(150)
+  email     String   @unique @db.VarChar(190)
+  password  String   @db.VarChar(255)
+  avatar    String?  @db.VarChar(500)
+  // Audit columns are plain scalars, not Prisma relations, everywhere in
+  // this schema: a real relation would force an unused back-reference
+  // array field onto Admin for every audited model, just to support a
+  // "created/updated by" name lookup done via a small service-side helper.
+  createdById Int?
+  updatedById Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  refreshTokens  RefreshToken[]
+  passwordResets PasswordReset[]
+
+  @@map("admins")
+}
+
+// Refresh tokens are stored hashed and rotated on every use so a stolen
+// cookie can be revoked without invalidating every admin's session.
+model RefreshToken {
+  id        Int       @id @default(autoincrement())
+  tokenHash String    @unique @db.VarChar(255)
+  adminId   Int
+  admin     Admin     @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([adminId])
+  @@map("refresh_tokens")
+}
+
+// Single-use, expiring, hashed reset tokens for the forgot-password flow.
+model PasswordReset {
+  id        Int       @id @default(autoincrement())
+  tokenHash String    @unique @db.VarChar(255)
+  adminId   Int
+  admin     Admin     @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([adminId])
+  @@map("password_resets")
+}
+
+// ---------------------------------------------------------------------------
+// Masters
+// ---------------------------------------------------------------------------
+
+model Country {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(150)
+  iso2        String    @unique @db.VarChar(2)
+  flag        String?   @db.VarChar(500)
+  status      Status    @default(ACTIVE)
+  createdById Int?
+  updatedById Int?
+  deletedById Int?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  companies Company[]
+
+  @@index([status])
+  @@index([deletedAt])
+  @@map("countries")
+}
+
+model TechStack {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(150)
+  slug        String    @unique @db.VarChar(180)
+  icon        String?   @db.VarChar(500)
+  status      Status    @default(ACTIVE)
+  createdById Int?
+  updatedById Int?
+  deletedById Int?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  companies CompanyTechStack[]
+
+  @@index([status])
+  @@index([deletedAt])
+  @@map("tech_stacks")
+}
+
+model EmployeeRange {
+  id          Int       @id @default(autoincrement())
+  title       String    @db.VarChar(100)
+  status      Status    @default(ACTIVE)
+  createdById Int?
+  updatedById Int?
+  deletedById Int?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  companies Company[]
+
+  @@index([status])
+  @@index([deletedAt])
+  @@map("employee_ranges")
+}
+
+model HourlyRateRange {
+  id          Int       @id @default(autoincrement())
+  title       String    @db.VarChar(100)
+  status      Status    @default(ACTIVE)
+  createdById Int?
+  updatedById Int?
+  deletedById Int?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  companies Company[]
+
+  @@index([status])
+  @@index([deletedAt])
+  @@map("hourly_rate_ranges")
+}
+
+// ---------------------------------------------------------------------------
+// Companies
+// ---------------------------------------------------------------------------
+
+model Company {
+  id                Int       @id @default(autoincrement())
+  name              String    @db.VarChar(200)
+  slug              String    @unique @db.VarChar(220)
+  website           String?   @db.VarChar(500)
+  logo              String?   @db.VarChar(500)
+  coverImage        String?   @db.VarChar(500)
+  shortDescription  String?   @db.VarChar(500)
+  description       String?   @db.LongText
+  foundedYear       Int?
+  headOffice        String?   @db.VarChar(255)
+
+  countryId         Int?
+  country           Country?         @relation(fields: [countryId], references: [id])
+  employeeRangeId   Int?
+  employeeRange     EmployeeRange?   @relation(fields: [employeeRangeId], references: [id])
+  hourlyRateRangeId Int?
+  hourlyRateRange   HourlyRateRange? @relation(fields: [hourlyRateRangeId], references: [id])
+
+  verified          Boolean   @default(false)
+  featured          Boolean   @default(false)
+  status            Status    @default(ACTIVE)
+  // Admin-set ranking score (0-10) shown on the public site's ranked
+  // category listings. Nullable - not every company is scored yet.
+  score             Float?
+
+  createdById       Int?
+  updatedById       Int?
+  deletedById       Int?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
+
+  techStacks        CompanyTechStack[]
+  categories        CategoryCompany[]
+
+  @@index([status])
+  @@index([featured])
+  @@index([verified])
+  @@index([countryId])
+  @@index([employeeRangeId])
+  @@index([hourlyRateRangeId])
+  @@index([deletedAt])
+  @@index([score])
+  @@map("companies")
+}
+
+model CompanyTechStack {
+  companyId   Int
+  techStackId Int
+  company     Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  techStack   TechStack @relation(fields: [techStackId], references: [id], onDelete: Cascade)
+
+  @@id([companyId, techStackId])
+  @@index([techStackId])
+  @@map("company_tech_stacks")
+}
+
+// ---------------------------------------------------------------------------
+// Categories (primary SEO entity)
+// ---------------------------------------------------------------------------
+
+model Category {
+  id               Int       @id @default(autoincrement())
+  name             String    @db.VarChar(200)
+  slug             String    @unique @db.VarChar(220)
+
+  parentId         Int?
+  parent           Category?  @relation("CategoryParent", fields: [parentId], references: [id])
+  children         Category[] @relation("CategoryParent")
+
+  heroDescription  String?   @db.Text
+  description      String?   @db.LongText
+  image            String?   @db.VarChar(500)
+  icon             String?   @db.VarChar(500)
+  featured         Boolean   @default(false)
+  status           Status    @default(ACTIVE)
+  displayOrder     Int       @default(0)
+
+  // SEO
+  metaTitle        String?   @db.VarChar(255)
+  metaDescription  String?   @db.VarChar(500)
+  canonicalUrl     String?   @db.VarChar(500)
+  ogTitle          String?   @db.VarChar(255)
+  ogDescription    String?   @db.VarChar(500)
+  ogImage          String?   @db.VarChar(500)
+  robots           String?   @db.VarChar(100)
+
+  createdById      Int?
+  updatedById      Int?
+  deletedById      Int?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+
+  faqs             CategoryFaq[]
+  companies        CategoryCompany[]
+
+  @@index([status])
+  @@index([parentId])
+  @@index([displayOrder])
+  @@index([deletedAt])
+  @@map("categories")
+}
+
+model CategoryFaq {
+  id         Int      @id @default(autoincrement())
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  question   String   @db.VarChar(500)
+  answer     String   @db.Text
+  sortOrder  Int      @default(0)
+
+  @@index([categoryId])
+  @@map("category_faqs")
+}
+
+model CategoryCompany {
+  categoryId   Int
+  companyId    Int
+  displayOrder Int      @default(0)
+  category     Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  company      Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@id([categoryId, companyId])
+  @@index([companyId])
+  @@index([categoryId, displayOrder])
+  @@map("category_companies")
+}
+
+// ---------------------------------------------------------------------------
+// Settings
+// ---------------------------------------------------------------------------
+
+// Singleton row (id is always 1).
+model Settings {
+  id           Int      @id @default(1)
+  siteName     String?  @db.VarChar(200)
+  logo         String?  @db.VarChar(500)
+  favicon      String?  @db.VarChar(500)
+  contactEmail String?  @db.VarChar(190)
+  phone        String?  @db.VarChar(50)
+  address      String?  @db.Text
+  socialLinks  Json?
+  // Visible body copy for the public About page (separate from the SEO meta
+  // tags in SeoMeta - this is the actual on-page content, rich text).
+  aboutContent String?  @db.LongText
+  updatedById  Int?
+  updatedAt    DateTime @updatedAt
+
+  @@map("settings")
+}
+
+model SeoMeta {
+  id              Int      @id @default(autoincrement())
+  page            SeoPage  @unique
+  metaTitle       String?  @db.VarChar(255)
+  metaDescription String?  @db.VarChar(500)
+  canonicalUrl    String?  @db.VarChar(500)
+  ogTitle         String?  @db.VarChar(255)
+  ogDescription   String?  @db.VarChar(500)
+  ogImage         String?  @db.VarChar(500)
+  robots          String?  @db.VarChar(100)
+  updatedById     Int?
+  updatedAt       DateTime @updatedAt
+
+  @@map("seo_meta")
+}
