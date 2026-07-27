@@ -224,7 +224,7 @@ GET /public/about                # contact info, about SEO, about page content (
 - Prisma is pinned at `5.22.0` even though a newer major (7.x) is available,
   to avoid an unplanned major-version migration mid-build. Revisit via the
   official [Prisma upgrade guide](https://pris.ly/d/major-version-upgrade)
-  when convenient.
+  when convenient. 
 - `lucide-react` (the icon set used by shadcn/ui and both frontends) has
   dropped brand/logo icons entirely — `apps/web`'s footer social links use
   `react-icons/fa6` instead for Facebook/X/LinkedIn/Instagram/YouTube glyphs.
