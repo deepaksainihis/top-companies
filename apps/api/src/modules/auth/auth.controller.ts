@@ -5,7 +5,7 @@ import { env } from "@/config/env";
 import { REFRESH_TOKEN_COOKIE } from "@/lib/jwt";
 import * as authService from "@/modules/auth/auth.service";
 
-const REFRESH_COOKIE_PATH = "/api/auth";
+const REFRESH_COOKIE_PATH = "/auth";
 
 const refreshCookieOptions = {
   httpOnly: true,

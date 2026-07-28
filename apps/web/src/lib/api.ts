@@ -1,6 +1,6 @@
 import { AboutData, HomeData, PublicCategoryDetail, PublicCategorySummary } from "@/lib/types";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
 // Public pages are SEO-facing but backed by admin-edited data, not
 // request-time state - ISR (revalidate every 60s) is the right fit rather
