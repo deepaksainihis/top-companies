@@ -12,9 +12,9 @@
     "resolveJsonModule": true,
     "declaration": false,
     "sourceMap": true,
-    "baseUrl": "src",
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["*"]
+      "@/*": ["src/*"]
     }
   },
   "include": ["src/**/*.ts", "prisma/seed.ts"],
