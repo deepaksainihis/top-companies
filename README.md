@@ -65,7 +65,7 @@ npm run db:seed
 
 This creates the schema and seeds:
 
-- 1 admin account — **email:** `admin@topcompanies.dev`, **password:** `Admin@12345`
+- 1 admin account — **email:** `admin@topdevelopmentcompany.com`, **password:** `Admin@12345`
 - 10 countries, 15 tech stacks, 5 employee ranges, 5 hourly rate ranges
 - ~24 companies with randomized relations and a randomized 0-10 `score`
 - 8 categories (with parent/child nesting, FAQs, and attached companies)
