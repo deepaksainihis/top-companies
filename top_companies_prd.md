@@ -3,7 +3,7 @@
 ## Role
 
 You are a Principal Full Stack Engineer. Build a production-ready
-application inspired by https://topcompanies.reviews (do not copy
+application https://topdevelopmentcompany.com (do not copy
 branding or assets).
 
 ## Stack

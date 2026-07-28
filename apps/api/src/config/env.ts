@@ -13,7 +13,7 @@ const envSchema = z.object({
   JWT_REFRESH_EXPIRES_IN_DAYS: z.coerce.number().int().positive().default(30),
   PASSWORD_RESET_EXPIRES_IN_MINUTES: z.coerce.number().int().positive().default(60),
   ADMIN_RESET_PASSWORD_URL: z.string().default("http://localhost:3000/reset-password"),
-  MAIL_FROM: z.string().default("Top Companies <no-reply@topcompanies.dev>"),
+  MAIL_FROM: z.string().default("Top Development Company <no-reply@topdevelopmentcompany.com>"),
   SMTP_HOST: z.string().optional(),
   SMTP_PORT: z.coerce.number().int().positive().optional(),
   SMTP_USER: z.string().optional(),

@@ -5,7 +5,7 @@ import slugify from "slugify";
 
 const prisma = new PrismaClient();
 
-const DEFAULT_ADMIN_EMAIL = "admin@topcompanies.dev";
+const DEFAULT_ADMIN_EMAIL = "admin@topdevelopmentcompany.com";
 const DEFAULT_ADMIN_PASSWORD = "Admin@12345";
 
 const COUNTRIES = [
